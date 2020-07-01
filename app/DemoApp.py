@@ -1,6 +1,6 @@
 import logging
 
-from paytmpg.merchant.app.SampleData import SampleData
+from SampleData import SampleData
 
 from paytmpg import PaymentDetailsBuilder, PaymentStatusDetailBuilder
 from paytmpg import RefundDetailBuilder, RefundStatusDetailBuilder
@@ -47,10 +47,10 @@ def create_txn_token_with_required_params():
     """
     response = Payment.createTxnToken(payment_details)
     print("Json response :: ", response.get_json_response())
-    print("token:: ", response.get_response_object().get_body().get_txn_token())
-    print("result-code:: ", response.get_response_object().get_body().get_result_info().get_result_code())
-    print("result_status:: ", response.get_response_object().get_body().get_result_info().get_result_status())
-    print("result_msg:: ", response.get_response_object().get_body().get_result_info().get_result_msg())
+    # print("token:: ", response.get_response_object().get_body().get_txn_token())
+    # print("result-code:: ", response.get_response_object().get_body().get_result_info().get_result_code())
+    # print("result_status:: ", response.get_response_object().get_body().get_result_info().get_result_status())
+    # print("result_msg:: ", response.get_response_object().get_body().get_result_info().get_result_msg())
     """ End of Function """
 
 
@@ -111,7 +111,7 @@ def create_txn_token_with_paytm_sso_token_and_payment_mode():
     """
     response = Payment.createTxnToken(payment_details)
     print(response.get_json_response())
-    print(response.get_response_object().get_body().get_txn_token())
+    # print(response.get_response_object().get_body().get_txn_token())
     """ End of Function """
 
 
@@ -186,7 +186,7 @@ def create_txn_token_with_all_params():
     """
     response = Payment.createTxnToken(payment_details)
     print(response.get_json_response())
-    print(response.get_response_object().get_body().get_txn_token())
+    # print(response.get_response_object().get_body().get_txn_token())
     """ End of Function """
 
 
@@ -201,7 +201,7 @@ def get_payment_status():
     """
     """Merchants who want to get TransactionStatus """
     """ Unique order for each order request """
-    order_id = "1"
+    order_id = "YOUR_ORDER_ID"
 
     read_timeout = 30*1000
 
@@ -216,7 +216,7 @@ def get_payment_status():
     """
     response = Payment.getPaymentStatus(payment_status_detail)
     print(response.get_json_response())
-    print(response.get_response_object().get_body().get_result_info().get_result_msg())
+    # print(response.get_response_object().get_body().get_result_info().get_result_msg())
     """ End of Function """
 
 
@@ -227,19 +227,21 @@ def do_refund():
     :return: None
     """
     """ Unique order for each order request """
-    # some old id
-    order_id = "KUNAL12345"
-    """ REF ID returned in Payment call """
-    ref_id = "123-323"
-    """ Transaction ID returned in Payment Api """
+    # Order id for which refund request needs to be raised 
+    order_id = "YOUR_ORDER_ID"
+    """ Unique refund id """
+    ref_id = "UNIQUE_REFUND_ID"
+    """ Transaction ID returned in Paytm\pg\process\PaymentStatus Api """
     # some old txn_id corresponding to order_id
-    txn_id = "20181101111212800110168789400203566"
+    txn_id = "PAYTM_TRANSACTION_ID"
+    """ Transaction Type for refund """
+    txn_type = "REFUND"
 
     """Refund Amount to be refunded (should not be greater than the Amount paid in the Transaction)"""
     refund_amount = "1"
 
     """refund object will have all the information required to make refund call"""
-    refund = RefundDetailBuilder(order_id, ref_id, txn_id, refund_amount)\
+    refund = RefundDetailBuilder(order_id, ref_id, txn_id, txn_type, refund_amount)\
         .set_sub_wallet_amount(SampleData.get_sub_wallet_amount())\
         .set_extra_params_map(SampleData.get_extra_params_map()).build()
     """Making call to SDK method which will return a AsyncRefundResponseBody object
@@ -247,7 +249,7 @@ def do_refund():
     """
     response = Refund.doRefund(refund)
     print(response.get_json_response())
-    print(response.get_response_object().get_body().get_result_info().get_result_msg())
+    # print(response.get_response_object().get_body().get_result_info().get_result_msg())
     """ End of Function """
 
 
@@ -258,7 +260,8 @@ def set_initial_parameters():
     """Handler which is of file or stream"""
     is_file_handler = False
     if is_file_handler:
-        file_path = "/home/avneeshkumargupta/logger_output.txt"
+        # Your log file path here 
+        file_path = "/path/log/file.log"
         mode = "w"
         handler = logging.FileHandler(file_path, mode)
     else:
@@ -272,28 +275,34 @@ def set_initial_parameters():
     MerchantProperty.set_logging_level(logging.DEBUG)
 
     environment = LibraryConstants.STAGING_ENVIRONMENT
-    client_id = "C11"
-    # for first three it is ok
-    mid = "REWSWE73126970618671"
-    merchant_key = "0Iu3ZpFP#g3Jn9B1"
+    # Find your Merchant ID and Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
+    mid = "YOUR_MID_HERE"
+    merchant_key = "YOUR_KEY_HERE"
+    # Website: For Staging - WEBSTAGING, For Production - DEFAULT */
+    website = "YOUR_WEBSITE_NAME"
+    # Client Id e.g C11
+    client_id = "YOUR_CLIENT_ID_HERE"
 
-    # 4th one
-    # mid = "eoCZuE96105495492097"
-    # merchant_key = "kP7Po7NEmcmF7s3i"
-    website = "WEBSTAGING"
+    callbackUrl = "MERCANT_CALLBACK_URL"
+    MerchantProperty.set_callback_url(callbackUrl)
+
     MerchantProperty.initialize(environment, mid, merchant_key, client_id, website)
     MerchantProperty.set_connect_timeout(80)
 
 
 def get_refund_status():
-    order_id = "PARCEL442794"
-    ref_id = "ref78904530056130"
+
+    # Order id for which refund status needs to be checked
+    order_id = "YOUR_ORDER_ID"
+
+    # Refund id of the refund request for which refund status needs to be checked
+    ref_id = "UNIQUE_REFUND_ID"
 
     """Refund status detail object"""
     refund_status_details = RefundStatusDetailBuilder().set_order_id(order_id).set_ref_id(ref_id).build()
     response = Refund.getRefundStatus(refund_status_details)
     print(response.get_json_response())
-    print(response.get_response_object().get_body().get_result_info().get_result_msg())
+    # print(response.get_response_object().get_body().get_result_info().get_result_msg())
     """ End of Function """
 
 
